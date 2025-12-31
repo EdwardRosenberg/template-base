@@ -97,7 +97,7 @@ jobs:
       - name: Placeholder - Frontend build steps
         run: echo "Add frontend build and test steps here"
 
-  # Optional: Add a summary job that depends on all other jobs
+  # Optional: Summary job that depends on all other jobs (can be removed if not using branch protection rules)
   # This is useful for branch protection rules
   ci-success:
     name: CI Success
