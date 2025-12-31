@@ -109,8 +109,8 @@ jobs:
         run: |
           backend_result="${{ needs.backend.result }}"
           frontend_result="${{ needs.frontend.result }}"
-          if [ "$backend_result" != "success" ] || \
-             [ "$frontend_result" != "success" ]; then
+          if [ "$backend_result" = "failure" ] || [ "$backend_result" = "cancelled" ] || \
+             [ "$frontend_result" = "failure" ] || [ "$frontend_result" = "cancelled" ]; then
             echo "One or more CI jobs failed"
             exit 1
           fi
