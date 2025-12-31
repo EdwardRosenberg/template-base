@@ -30,14 +30,9 @@ yarn-error.log*
 .npm
 .yarn/
 .pnp.*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 .env
 .env.local
 .env.*.local
-dist/
-build/
 .cache/
 .parcel-cache/
 .next/
@@ -58,7 +53,6 @@ target/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
-build/
 bin/
 .mtj.tmp/
 hs_err_pid*
@@ -88,8 +82,6 @@ pip-delete-this-directory.txt
 .coverage
 .tox/
 *.egg-info/
-dist/
-build/
 *.egg
 
 # Logs
@@ -104,17 +96,12 @@ lerna-debug.log*
 *.tmp
 *.temp
 *.bak
-*.swp
-*.swo
-*~
 
 # Build artifacts
 dist/
 build/
 out/
-target/
 
 # Package manager directories
-node_modules/
 bower_components/
 vendor/
