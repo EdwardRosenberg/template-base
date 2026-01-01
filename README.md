@@ -4,43 +4,38 @@ A base template repository with CI/CD workflows and standardized configurations.
 
 ## CI/CD
 
-### Continuous Integration Workflow
+### Continuous Integration (Reusable Workflow)
 
-This repository includes a comprehensive CI workflow (`.github/workflows/ci.yml`) that can be used in two ways:
+This repository provides a reusable CI workflow intended to be **called by derived templates and project repos**.
 
-1. **Standalone**: Automatically runs on every push and pull request to the `main` and `develop` branches in this repository
-2. **Reusable Workflow**: Can be called from other repositories (derived templates) to share CI logic
+- Base repo (`template-base`): contains **CI implementation**
+- Derived repos (backend/frontend templates or real projects): define **when CI runs** (push/PR) and call the base workflow
 
-#### Using as a Reusable Workflow
+### Use in a derived repository
 
-This is the recommended approach for derived templates (backend/frontend templates) to avoid template drift and reduce the need for sync operations.
-
-**Basic Example - Calling from a derived repository:**
-
-Create a `.github/workflows/ci.yml` file in your derived repository:
+Create `.github/workflows/ci.yml` in the derived repo:
 
 ```yaml
 name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
   ci:
-    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    uses: /template-base/.github/workflows/ci.yml@v1
     with:
-      # Backend configuration
       backend-enabled: true
-      backend-tech-stack: 'java'
-      backend-build-command: 'mvn clean install'
-      backend-test-command: 'mvn test'
-      java-version: '21'
-      
-      # Frontend configuration
+      backend-tech-stack: "java"
+      backend-build-command: "mvn -B clean verify"
+      backend-test-command: "mvn -B test"
+      java-version: "21"
+
       frontend-enabled: false
+
 ```
 
 **Node.js Frontend Example:**

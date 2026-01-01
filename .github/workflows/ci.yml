@@ -1,14 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
   workflow_call:
     inputs:
       # Backend configuration
@@ -52,7 +44,7 @@ on:
         description: 'Node.js version (if backend-tech-stack is node)'
         type: string
         default: '20'
-      
+
       # Frontend configuration
       frontend-enabled:
         description: 'Enable frontend job'
@@ -90,7 +82,7 @@ on:
         description: 'Frontend lint command'
         type: string
         default: ''
-      
+
       # CI Success job configuration
       ci-success-enabled:
         description: 'Enable CI success summary job'
@@ -103,7 +95,7 @@ permissions:
 jobs:
   backend:
     name: Backend Build & Test
-    if: ${{ inputs.backend-enabled != false }}
+    if: ${{ inputs.backend-enabled }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -155,7 +147,7 @@ jobs:
 
   frontend:
     name: Frontend Build & Test
-    if: ${{ inputs.frontend-enabled != false }}
+    if: ${{ inputs.frontend-enabled }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -197,7 +189,7 @@ jobs:
   # This is useful for branch protection rules
   ci-success:
     name: CI Success
-    if: ${{ always() && inputs.ci-success-enabled != false }}
+    if: ${{ always() && inputs.ci-success-enabled }}
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
@@ -205,7 +197,7 @@ jobs:
         run: |
           backend_result="${{ needs.backend.result }}"
           frontend_result="${{ needs.frontend.result }}"
-          
+
           # Skip check if job was skipped due to being disabled
           if [ "$backend_result" != "skipped" ]; then
             if [ "$backend_result" = "failure" ] || [ "$backend_result" = "cancelled" ]; then
@@ -213,12 +205,12 @@ jobs:
               exit 1
             fi
           fi
-          
+
           if [ "$frontend_result" != "skipped" ]; then
             if [ "$frontend_result" = "failure" ] || [ "$frontend_result" = "cancelled" ]; then
               echo "Frontend job failed"
               exit 1
             fi
           fi
-          
+
           echo "All CI jobs passed successfully"
