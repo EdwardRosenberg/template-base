@@ -9,6 +9,93 @@ on:
     branches:
       - main
       - develop
+  workflow_call:
+    inputs:
+      # Backend configuration
+      backend-enabled:
+        description: 'Enable backend job'
+        type: boolean
+        default: true
+      backend-tech-stack:
+        description: 'Backend technology stack (java, python, node, or custom)'
+        type: string
+        default: 'custom'
+      backend-os-matrix:
+        description: 'OS matrix for backend (JSON array, e.g., ["ubuntu-latest"])'
+        type: string
+        default: '["ubuntu-latest"]'
+      backend-setup-command:
+        description: 'Backend setup command (runs before build)'
+        type: string
+        default: ''
+      backend-build-command:
+        description: 'Backend build command'
+        type: string
+        default: 'echo "Add backend build steps here"'
+      backend-test-command:
+        description: 'Backend test command'
+        type: string
+        default: ''
+      java-version:
+        description: 'Java version (if backend-tech-stack is java)'
+        type: string
+        default: '21'
+      java-distribution:
+        description: 'Java distribution (if backend-tech-stack is java)'
+        type: string
+        default: 'temurin'
+      python-version:
+        description: 'Python version (if backend-tech-stack is python)'
+        type: string
+        default: '3.11'
+      backend-node-version:
+        description: 'Node.js version (if backend-tech-stack is node)'
+        type: string
+        default: '20'
+      
+      # Frontend configuration
+      frontend-enabled:
+        description: 'Enable frontend job'
+        type: boolean
+        default: true
+      frontend-tech-stack:
+        description: 'Frontend technology stack (node or custom)'
+        type: string
+        default: 'custom'
+      frontend-os-matrix:
+        description: 'OS matrix for frontend (JSON array, e.g., ["ubuntu-latest"])'
+        type: string
+        default: '["ubuntu-latest"]'
+      frontend-node-version:
+        description: 'Node.js version (if frontend-tech-stack is node)'
+        type: string
+        default: '20'
+      frontend-package-manager:
+        description: 'Package manager for Node.js (npm, yarn, pnpm)'
+        type: string
+        default: 'npm'
+      frontend-setup-command:
+        description: 'Frontend setup command (runs before build)'
+        type: string
+        default: ''
+      frontend-build-command:
+        description: 'Frontend build command'
+        type: string
+        default: 'echo "Add frontend build steps here"'
+      frontend-test-command:
+        description: 'Frontend test command'
+        type: string
+        default: ''
+      frontend-lint-command:
+        description: 'Frontend lint command'
+        type: string
+        default: ''
+      
+      # CI Success job configuration
+      ci-success-enabled:
+        description: 'Enable CI success summary job'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -16,102 +103,122 @@ permissions:
 jobs:
   backend:
     name: Backend Build & Test
+    if: ${{ inputs.backend-enabled != false }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
-        # Add additional OS versions if needed:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJSON(inputs.backend-os-matrix || '["ubuntu-latest"]') }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Placeholder: Add backend-specific setup steps here
-      # Example for Java/Maven:
-      # - name: Set up JDK
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     java-version: '25'
-      #     distribution: 'temurin'
-      #     cache: 'maven'
-      #
-      # - name: Build with Maven
-      #   run: mvn clean install
-      #
-      # - name: Run tests
-      #   run: mvn test
+      # Java/Maven setup
+      - name: Set up JDK
+        if: ${{ inputs.backend-tech-stack == 'java' }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version || '21' }}
+          distribution: ${{ inputs.java-distribution || 'temurin' }}
+          cache: 'maven'
 
-      # Example for Python:
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      #     cache: 'pip'
-      #
-      # - name: Install dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install -r requirements.txt
-      #
-      # - name: Run tests
-      #   run: pytest
+      # Python setup
+      - name: Set up Python
+        if: ${{ inputs.backend-tech-stack == 'python' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version || '3.11' }}
+          cache: 'pip'
 
-      - name: Placeholder - Backend build steps
-        run: echo "Add backend build and test steps here"
+      # Node.js setup (for backend)
+      - name: Set up Node.js
+        if: ${{ inputs.backend-tech-stack == 'node' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.backend-node-version || '20' }}
+          cache: 'npm'
+
+      # Custom setup command
+      - name: Run custom setup
+        if: ${{ inputs.backend-setup-command != '' }}
+        run: ${{ inputs.backend-setup-command }}
+
+      # Build step
+      - name: Build
+        run: ${{ inputs.backend-build-command || 'echo "Add backend build steps here"' }}
+
+      # Test step
+      - name: Run tests
+        if: ${{ inputs.backend-test-command != '' }}
+        run: ${{ inputs.backend-test-command }}
 
   frontend:
     name: Frontend Build & Test
+    if: ${{ inputs.frontend-enabled != false }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
-        # node-version: [18.x, 20.x]  # Uncomment to test multiple Node versions
+        os: ${{ fromJSON(inputs.frontend-os-matrix || '["ubuntu-latest"]') }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Placeholder: Add frontend-specific setup steps here
-      # Example for Node.js/npm:
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      #     cache: 'npm'
-      #
-      # - name: Install dependencies
-      #   run: npm ci
-      #
-      # - name: Run linting
-      #   run: npm run lint
-      #
-      # - name: Build
-      #   run: npm run build
-      #
-      # - name: Run tests
-      #   run: npm test
+      # Node.js setup
+      - name: Set up Node.js
+        if: ${{ inputs.frontend-tech-stack == 'node' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.frontend-node-version || '20' }}
+          cache: ${{ inputs.frontend-package-manager || 'npm' }}
 
-      - name: Placeholder - Frontend build steps
-        run: echo "Add frontend build and test steps here"
+      # Custom setup command
+      - name: Run custom setup
+        if: ${{ inputs.frontend-setup-command != '' }}
+        run: ${{ inputs.frontend-setup-command }}
+
+      # Lint step
+      - name: Run linting
+        if: ${{ inputs.frontend-lint-command != '' }}
+        run: ${{ inputs.frontend-lint-command }}
+
+      # Build step
+      - name: Build
+        run: ${{ inputs.frontend-build-command || 'echo "Add frontend build steps here"' }}
+
+      # Test step
+      - name: Run tests
+        if: ${{ inputs.frontend-test-command != '' }}
+        run: ${{ inputs.frontend-test-command }}
 
   # Optional: Summary job that depends on all other jobs (can be removed if not using branch protection rules)
   # This is useful for branch protection rules
   ci-success:
     name: CI Success
+    if: ${{ always() && inputs.ci-success-enabled != false }}
     needs: [backend, frontend]
     runs-on: ubuntu-latest
-    if: always()
     steps:
       - name: Check job results
         run: |
           backend_result="${{ needs.backend.result }}"
           frontend_result="${{ needs.frontend.result }}"
-          if [ "$backend_result" = "failure" ] || [ "$backend_result" = "cancelled" ] || \
-             [ "$frontend_result" = "failure" ] || [ "$frontend_result" = "cancelled" ]; then
-            echo "One or more CI jobs failed"
-            exit 1
+          
+          # Skip check if job was skipped due to being disabled
+          if [ "$backend_result" != "skipped" ]; then
+            if [ "$backend_result" = "failure" ] || [ "$backend_result" = "cancelled" ]; then
+              echo "Backend job failed"
+              exit 1
+            fi
           fi
+          
+          if [ "$frontend_result" != "skipped" ]; then
+            if [ "$frontend_result" = "failure" ] || [ "$frontend_result" = "cancelled" ]; then
+              echo "Frontend job failed"
+              exit 1
+            fi
+          fi
+          
           echo "All CI jobs passed successfully"

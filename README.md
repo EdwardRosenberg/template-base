@@ -6,32 +6,181 @@ A base template repository with CI/CD workflows and standardized configurations.
 
 ### Continuous Integration Workflow
 
-This repository includes a comprehensive CI workflow (`.github/workflows/ci.yml`) that automatically runs on every push and pull request to the `main` and `develop` branches.
+This repository includes a comprehensive CI workflow (`.github/workflows/ci.yml`) that can be used in two ways:
+
+1. **Standalone**: Automatically runs on every push and pull request to the `main` and `develop` branches in this repository
+2. **Reusable Workflow**: Can be called from other repositories (derived templates) to share CI logic
+
+#### Using as a Reusable Workflow
+
+This is the recommended approach for derived templates (backend/frontend templates) to avoid template drift and reduce the need for sync operations.
+
+**Basic Example - Calling from a derived repository:**
+
+Create a `.github/workflows/ci.yml` file in your derived repository:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Backend configuration
+      backend-enabled: true
+      backend-tech-stack: 'java'
+      backend-build-command: 'mvn clean install'
+      backend-test-command: 'mvn test'
+      java-version: '21'
+      
+      # Frontend configuration
+      frontend-enabled: false
+```
+
+**Node.js Frontend Example:**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Disable backend
+      backend-enabled: false
+      
+      # Frontend configuration
+      frontend-enabled: true
+      frontend-tech-stack: 'node'
+      frontend-node-version: '20'
+      frontend-package-manager: 'npm'
+      frontend-setup-command: 'npm ci'
+      frontend-lint-command: 'npm run lint'
+      frontend-build-command: 'npm run build'
+      frontend-test-command: 'npm test'
+```
+
+**Python Backend Example:**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Backend configuration
+      backend-enabled: true
+      backend-tech-stack: 'python'
+      python-version: '3.11'
+      backend-setup-command: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      backend-test-command: 'pytest'
+      
+      # Disable frontend
+      frontend-enabled: false
+```
+
+**Full-Stack Example (Node.js Frontend + Java Backend):**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Backend configuration
+      backend-enabled: true
+      backend-tech-stack: 'java'
+      java-version: '21'
+      backend-build-command: 'mvn clean install'
+      backend-test-command: 'mvn test'
+      
+      # Frontend configuration
+      frontend-enabled: true
+      frontend-tech-stack: 'node'
+      frontend-node-version: '20'
+      frontend-setup-command: 'npm ci'
+      frontend-build-command: 'npm run build'
+      frontend-test-command: 'npm test'
+```
+
+#### Available Input Parameters
+
+**Backend Parameters:**
+- `backend-enabled` (boolean, default: `true`) - Enable/disable backend job
+- `backend-tech-stack` (string, default: `'custom'`) - Technology stack: `java`, `python`, `node`, or `custom`
+- `backend-os-matrix` (string, default: `'["ubuntu-latest"]'`) - OS matrix as JSON array
+- `backend-setup-command` (string) - Custom setup command to run before build
+- `backend-build-command` (string) - Build command to execute
+- `backend-test-command` (string) - Test command to execute
+- `java-version` (string, default: `'21'`) - Java version (used when `backend-tech-stack: 'java'`)
+- `java-distribution` (string, default: `'temurin'`) - Java distribution
+- `python-version` (string, default: `'3.11'`) - Python version (used when `backend-tech-stack: 'python'`)
+- `backend-node-version` (string, default: `'20'`) - Node.js version (used when `backend-tech-stack: 'node'`)
+
+**Frontend Parameters:**
+- `frontend-enabled` (boolean, default: `true`) - Enable/disable frontend job
+- `frontend-tech-stack` (string, default: `'custom'`) - Technology stack: `node` or `custom`
+- `frontend-os-matrix` (string, default: `'["ubuntu-latest"]'`) - OS matrix as JSON array
+- `frontend-node-version` (string, default: `'20'`) - Node.js version
+- `frontend-package-manager` (string, default: `'npm'`) - Package manager: `npm`, `yarn`, or `pnpm`
+- `frontend-setup-command` (string) - Custom setup command to run before build
+- `frontend-lint-command` (string) - Linting command to execute
+- `frontend-build-command` (string) - Build command to execute
+- `frontend-test-command` (string) - Test command to execute
+
+**General Parameters:**
+- `ci-success-enabled` (boolean, default: `true`) - Enable CI success summary job (useful for branch protection)
 
 #### Workflow Structure
 
 The CI workflow is designed to be generic and easily adaptable to different project types. It includes:
 
 **Triggers:**
-- `push` events to `main` and `develop` branches
-- `pull_request` events targeting `main` and `develop` branches
+- `push` events to `main` and `develop` branches (when used standalone)
+- `pull_request` events targeting `main` and `develop` branches (when used standalone)
+- `workflow_call` for use as a reusable workflow (when called from derived templates)
 
 **Jobs:**
 
 1. **Backend Build & Test**
-   - Runs on a matrix of operating systems (currently `ubuntu-latest`)
+   - Runs on a configurable matrix of operating systems
    - Uses fail-fast strategy to stop on first failure
-   - Includes placeholders for backend-specific build steps
-   - Example configurations provided for:
-     - Java/Maven projects
-     - Python projects
+   - Supports Java/Maven, Python, Node.js, or custom tech stacks
+   - Configurable setup, build, and test commands
 
 2. **Frontend Build & Test**
-   - Runs on a matrix of operating systems (currently `ubuntu-latest`)
+   - Runs on a configurable matrix of operating systems
    - Uses fail-fast strategy to stop on first failure
-   - Includes placeholders for frontend-specific build steps
-   - Example configurations provided for:
-     - Node.js/npm projects
+   - Supports Node.js with npm/yarn/pnpm or custom tech stacks
+   - Configurable setup, lint, build, and test commands
 
 3. **CI Success** (Summary Job)
    - Depends on all previous jobs
@@ -40,32 +189,47 @@ The CI workflow is designed to be generic and easily adaptable to different proj
 
 #### Key Features
 
-- **Fail-Fast Strategy**: Jobs will stop immediately on first failure to save CI/CD resources
-- **Matrix Builds**: Easily extendable to test across multiple OS versions or language versions
-- **Caching Support**: Examples include caching for Maven, pip, and npm to speed up builds
+- **Reusable**: Can be called from derived templates to eliminate template drift
+- **Composable**: Mix and match backend/frontend configurations as needed
+- **No Commenting/Uncommenting**: Configure via input parameters instead
+- **Fail-Fast Strategy**: Jobs stop immediately on first failure to save CI/CD resources
+- **Matrix Builds**: Easily extendable to test across multiple OS versions
+- **Caching Support**: Built-in caching for Maven, pip, and npm to speed up builds
 - **Modular Structure**: Backend and frontend jobs are separated for clarity and parallel execution
 
-#### Customization
+#### Benefits of the Reusable Workflow Approach
 
-To customize the CI workflow for your specific project:
+1. **Eliminates Template Drift**: Derived templates call the base workflow instead of copying it
+2. **Centralized Updates**: Updates to CI logic happen in one place
+3. **No Manual Sync**: No need to copy/paste workflow changes across repositories
+4. **Cleaner Configurations**: Use input parameters instead of commenting/uncommenting code sections
+5. **Composable**: Enable only the jobs you need (backend-only, frontend-only, or full-stack)
 
-1. Uncomment the relevant setup steps in the workflow file
-2. Modify the matrix configuration to test on additional operating systems or language versions
-3. Add or remove jobs as needed for your project structure
-4. Update the `ci-success` job dependencies if you add new jobs
+#### Versioning
 
-#### Example Usage
+When calling the reusable workflow, you can specify the version:
 
-**For a Java/Maven project:**
-- Uncomment the JDK setup and Maven build steps in the `backend` job
-- Adjust the Java version as needed
+- `@main` - Always use the latest version (recommended for staying up-to-date)
+- `@v1.0.0` - Pin to a specific release tag (recommended for stability)
+- `@abc123` - Pin to a specific commit SHA (for maximum stability)
 
-**For a Node.js project:**
-- Uncomment the Node.js setup and npm steps in the `frontend` job
-- Adjust the Node.js version as needed
+**Example:**
+```yaml
+uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@v1.0.0
+```
 
-**For testing multiple versions:**
-- Uncomment and modify the matrix configuration to include additional versions
+#### More Examples
+
+Additional workflow examples for different project types are available in [`.github/workflows/examples/`](.github/workflows/examples/):
+
+- **Java/Maven Backend**: [`java-backend.yml`](.github/workflows/examples/java-backend.yml)
+- **Python Backend**: [`python-backend.yml`](.github/workflows/examples/python-backend.yml)
+- **Node.js Backend**: [`nodejs-backend.yml`](.github/workflows/examples/nodejs-backend.yml)
+- **Node.js Frontend**: [`nodejs-frontend.yml`](.github/workflows/examples/nodejs-frontend.yml)
+- **Full-Stack**: [`fullstack.yml`](.github/workflows/examples/fullstack.yml)
+- **Multi-OS Testing**: [`multi-os.yml`](.github/workflows/examples/multi-os.yml)
+
+See the [examples README](.github/workflows/examples/README.md) for detailed usage instructions.
 
 ## Configuration Files
 

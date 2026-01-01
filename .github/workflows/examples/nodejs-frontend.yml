@@ -1,0 +1,34 @@
+# Example: Node.js/React Frontend Project
+# Copy this file to .github/workflows/ci.yml in your derived repository
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Disable backend
+      backend-enabled: false
+      
+      # Frontend configuration
+      frontend-enabled: true
+      frontend-tech-stack: 'node'
+      frontend-node-version: '20'
+      frontend-package-manager: 'npm'
+      frontend-setup-command: 'npm ci'
+      frontend-lint-command: 'npm run lint'
+      frontend-build-command: 'npm run build'
+      frontend-test-command: 'npm test'
+      
+      # Enable CI success job for branch protection
+      ci-success-enabled: true
