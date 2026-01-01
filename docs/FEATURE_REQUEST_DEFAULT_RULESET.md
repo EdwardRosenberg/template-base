@@ -75,8 +75,7 @@ The ruleset should apply to:
 ##### 2. Status Check Requirements
 
 - **Require status checks to pass before merging**:
-  - Require the `ci-success` job to pass (job name: `ci-success`, display name: `CI Success`)
-  - This integrates with the existing job from the reusable workflow (`.github/workflows/ci.yml`)
+  - Require the `ci-success` job to pass (integrates with the reusable workflow `.github/workflows/ci.yml`)
   - This ensures both backend and frontend builds/tests pass
   
 - **Branch freshness**:
@@ -131,7 +130,7 @@ The configuration should support different enforcement levels:
 
 Create comprehensive documentation for rulesets:
 
-1. **New file**: `docs/BRANCH_PROTECTION.md` (at repository root, consistent with this feature request location)
+1. **New file**: `docs/BRANCH_PROTECTION.md` (in the docs/ directory, consistent with this feature request)
    - Explain ruleset concept and benefits
    - Provide step-by-step configuration instructions
    - Include screenshots of GitHub UI configuration
@@ -278,7 +277,7 @@ Create comprehensive documentation for rulesets:
 The ruleset integrates with existing template-base features:
 
 1. **CI/CD Workflow** (`.github/workflows/ci.yml`):
-   - Status checks will reference the `ci-success` job (display name: `CI Success`)
+   - Status checks will reference the `ci-success` job
    - The existing fail-fast strategy aligns with branch protection goals
    - Reusable workflow pattern supports derived repositories
 
@@ -346,7 +345,7 @@ Bypass: Admins only, logged
 ```
 Branches: main, develop
 Reviews: 1 required, dismiss stale
-CI: CI Success job must pass
+CI: ci-success job must pass
 Branch must be up to date: Yes
 Force push: Blocked
 Deletion: Blocked
