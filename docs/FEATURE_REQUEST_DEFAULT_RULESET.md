@@ -75,7 +75,8 @@ The ruleset should apply to:
 ##### 2. Status Check Requirements
 
 - **Require status checks to pass before merging**:
-  - Require the `CI Success` job to pass (integrates with the existing `ci-success` job from the reusable workflow)
+  - Require the `ci-success` job to pass (job name: `ci-success`, display name: `CI Success`)
+  - This integrates with the existing job from the reusable workflow (`.github/workflows/ci.yml`)
   - This ensures both backend and frontend builds/tests pass
   
 - **Branch freshness**:
@@ -130,17 +131,18 @@ The configuration should support different enforcement levels:
 
 Create comprehensive documentation for rulesets:
 
-1. **New file**: `.github/docs/BRANCH_PROTECTION.md`
+1. **New file**: `docs/BRANCH_PROTECTION.md` (at repository root, consistent with this feature request location)
    - Explain ruleset concept and benefits
    - Provide step-by-step configuration instructions
    - Include screenshots of GitHub UI configuration
    - Document rationale for each rule
    - Provide troubleshooting guide
 
-2. **Configuration reference**: `.github/rulesets/default-ruleset.json`
-   - Exportable ruleset configuration (if GitHub supports export)
-   - Documented JSON structure for manual recreation
-   - Multiple configuration examples (basic, standard, strict)
+2. **Configuration reference**: `docs/rulesets/` directory
+   - Multiple configuration examples (basic, standard, strict) as JSON or YAML
+   - Documented structure for manual recreation via GitHub UI
+   - Note: GitHub API supports ruleset creation, but manual UI configuration is more common
+   - Include both API examples and UI-based instructions
 
 3. **Update README.md**:
    - Add "Branch Protection Strategy" section
@@ -276,7 +278,7 @@ Create comprehensive documentation for rulesets:
 The ruleset integrates with existing template-base features:
 
 1. **CI/CD Workflow** (`.github/workflows/ci.yml`):
-   - Status checks will reference the `CI Success` job
+   - Status checks will reference the `ci-success` job (display name: `CI Success`)
    - The existing fail-fast strategy aligns with branch protection goals
    - Reusable workflow pattern supports derived repositories
 
@@ -357,8 +359,8 @@ Bypass: Admins for emergency fixes
 
 The feature is complete when:
 
-- [ ] Ruleset documentation created in `.github/docs/BRANCH_PROTECTION.md`
-- [ ] Configuration examples provided for basic, standard, and strict levels
+- [ ] Ruleset documentation created in `docs/BRANCH_PROTECTION.md`
+- [ ] Configuration examples provided for basic, standard, and strict levels in `docs/rulesets/` directory
 - [ ] Default ruleset applied to template-base repository (`main` and `develop` branches)
 - [ ] README.md updated with branch protection strategy section
 - [ ] Integration with existing CI/CD workflow documented and tested
