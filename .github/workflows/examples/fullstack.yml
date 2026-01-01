@@ -1,0 +1,38 @@
+# Example: Full-Stack Project (Node.js Frontend + Java Backend)
+# Copy this file to .github/workflows/ci.yml in your derived repository
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Backend configuration
+      backend-enabled: true
+      backend-tech-stack: 'java'
+      java-version: '21'
+      backend-build-command: 'cd backend && mvn clean install'
+      backend-test-command: 'cd backend && mvn test'
+      
+      # Frontend configuration
+      frontend-enabled: true
+      frontend-tech-stack: 'node'
+      frontend-node-version: '20'
+      frontend-package-manager: 'npm'
+      frontend-setup-command: 'cd frontend && npm ci'
+      frontend-lint-command: 'cd frontend && npm run lint'
+      frontend-build-command: 'cd frontend && npm run build'
+      frontend-test-command: 'cd frontend && npm test'
+      
+      # Enable CI success job for branch protection
+      ci-success-enabled: true
