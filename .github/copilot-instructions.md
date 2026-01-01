@@ -22,6 +22,11 @@ These instructions define how GitHub Copilot and Copilot agents should operate w
 - **Stay on task**: Resist the urge to "fix" unrelated issues or tech debt
 - If you notice issues outside the scope, create separate issues instead of fixing them in the current PR
 
+### Observability and Error Handling
+- Make all critical-path flows observable with logs, metrics, or traces that provide actionable context.
+- Ensure errors are accurately handled and logged with sufficient detail for debugging without leaking sensitive data.
+- Apply the “throw early, catch late” principle: validate and throw at the source of failure, and catch at higher boundaries where contextual logging and recovery occur.
+
 ## Quality Gates
 
 ### Testing Requirements
