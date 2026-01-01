@@ -143,6 +143,7 @@ jobs:
 - `java-version` (string, default: `'21'`) - Java version (used when `backend-tech-stack: 'java'`)
 - `java-distribution` (string, default: `'temurin'`) - Java distribution
 - `python-version` (string, default: `'3.11'`) - Python version (used when `backend-tech-stack: 'python'`)
+- `backend-node-version` (string, default: `'20'`) - Node.js version (used when `backend-tech-stack: 'node'`)
 
 **Frontend Parameters:**
 - `frontend-enabled` (boolean, default: `true`) - Enable/disable frontend job
@@ -223,6 +224,7 @@ Additional workflow examples for different project types are available in [`.git
 
 - **Java/Maven Backend**: [`java-backend.yml`](.github/workflows/examples/java-backend.yml)
 - **Python Backend**: [`python-backend.yml`](.github/workflows/examples/python-backend.yml)
+- **Node.js Backend**: [`nodejs-backend.yml`](.github/workflows/examples/nodejs-backend.yml)
 - **Node.js Frontend**: [`nodejs-frontend.yml`](.github/workflows/examples/nodejs-frontend.yml)
 - **Full-Stack**: [`fullstack.yml`](.github/workflows/examples/fullstack.yml)
 - **Multi-OS Testing**: [`multi-os.yml`](.github/workflows/examples/multi-os.yml)

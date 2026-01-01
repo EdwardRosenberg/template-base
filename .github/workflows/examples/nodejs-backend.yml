@@ -1,0 +1,32 @@
+# Example: Node.js Backend Project
+# Copy this file to .github/workflows/ci.yml in your derived repository
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@main
+    with:
+      # Backend configuration
+      backend-enabled: true
+      backend-tech-stack: 'node'
+      backend-node-version: '20'
+      backend-setup-command: 'npm ci'
+      backend-build-command: 'npm run build'
+      backend-test-command: 'npm test'
+      
+      # Disable frontend
+      frontend-enabled: false
+      
+      # Enable CI success job for branch protection
+      ci-success-enabled: true

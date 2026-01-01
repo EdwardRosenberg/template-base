@@ -21,6 +21,11 @@ This directory contains example workflow files demonstrating how to use the reus
 - **Features**: Python setup, pip caching, custom setup with requirements.txt, pytest
 - **Configuration**: Python 3.11
 
+### [nodejs-backend.yml](./nodejs-backend.yml)
+- **Use Case**: Node.js backend project (e.g., Express API)
+- **Features**: Node.js setup, npm caching, build and test
+- **Configuration**: Node.js 20 with npm
+
 ### [nodejs-frontend.yml](./nodejs-frontend.yml)
 - **Use Case**: Node.js/React frontend project
 - **Features**: Node.js setup, npm caching, lint, build, and test

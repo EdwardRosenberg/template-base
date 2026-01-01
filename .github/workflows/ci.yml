@@ -48,6 +48,10 @@ on:
         description: 'Python version (if backend-tech-stack is python)'
         type: string
         default: '3.11'
+      backend-node-version:
+        description: 'Node.js version (if backend-tech-stack is node)'
+        type: string
+        default: '20'
       
       # Frontend configuration
       frontend-enabled:
@@ -132,7 +136,7 @@ jobs:
         if: ${{ inputs.backend-tech-stack == 'node' }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ inputs.frontend-node-version || '20' }}
+          node-version: ${{ inputs.backend-node-version || '20' }}
           cache: 'npm'
 
       # Custom setup command
