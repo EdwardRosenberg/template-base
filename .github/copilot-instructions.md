@@ -89,6 +89,26 @@ If you cannot run tests or builds (e.g., missing dependencies, environment const
 
 ## Pull Request Hygiene
 
+### PR Title Requirements
+
+PR titles **must** follow the Conventional Commits format:
+
+```
+<type>(<optional scope>): <description>
+```
+
+**Valid types:** `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`, `build`
+
+**Examples:**
+- ✅ `feat: add user authentication endpoint`
+- ✅ `fix(ui): correct button alignment issue`
+- ✅ `docs: update PR title guidelines`
+- ✅ `chore!: update all dependencies` (breaking change)
+- ❌ `Update README` (missing type)
+- ❌ `Add feature` (missing type)
+
+See [docs/pr-title-guidelines.md](../docs/pr-title-guidelines.md) for complete guidance.
+
 ### PR Descriptions Must Include
 1. **Clear summary** of what changed and why
 2. **Type of change** (bug fix, feature, refactor, docs, config, etc.)
