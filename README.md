@@ -237,7 +237,14 @@ This repository includes several configuration files:
 
 ## Contributing
 
-Please see the pull request template for contribution guidelines.
+Contributions are welcome! Please follow these guidelines:
+
+1. **Pull Request Titles**: Use [Conventional Commits](docs/pr-title-guidelines.md) format (e.g., `feat: add new feature`, `fix: correct bug`)
+2. **Pull Request Template**: Fill out the [PR template](.github/PULL_REQUEST_TEMPLATE.md) completely
+3. **Code Style**: Follow the existing code style and conventions
+4. **Testing**: Ensure all tests pass and add tests for new functionality
+
+See [docs/pr-title-guidelines.md](docs/pr-title-guidelines.md) for detailed PR title formatting requirements.
 
 ## License
 

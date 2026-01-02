@@ -1,3 +1,21 @@
+<!-- 
+**IMPORTANT: PR Title Format**
+Your PR title must follow Conventional Commits format:
+
+  <type>(<optional scope>): <description>
+
+Valid types: feat, fix, chore, docs, refactor, test, perf, ci, build
+
+Examples:
+  ✅ feat: add user authentication
+  ✅ fix(ui): correct button alignment
+  ✅ docs: update PR guidelines
+  ❌ Update README (missing type)
+  ❌ Add feature (missing type)
+
+For detailed guidelines, see: docs/pr-title-guidelines.md
+-->
+
 ## Description
 
 <!-- Provide a brief description of the changes in this PR -->
