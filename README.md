@@ -215,7 +215,7 @@ uses: EdwardRosenberg/template-base/.github/workflows/ci.yml@v1.0.0
 
 #### More Examples
 
-Additional workflow examples for different project types are available in [`.github/workflows/examples/`](.github/workflows/examples/):
+Additional workflow examples for different project types are available in [`.github/workflows/examples/`](.github/workflows/examples/README.md):
 
 - **Java/Maven Backend**: [`java-backend.yml`](.github/workflows/examples/java-backend.yml)
 - **Python Backend**: [`python-backend.yml`](.github/workflows/examples/python-backend.yml)
