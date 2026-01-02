@@ -4,6 +4,13 @@ A base template repository with CI/CD workflows and standardized configurations.
 
 ## CI/CD
 
+### Reusable Workflows
+
+This repository provides reusable workflows for derived templates and project repos:
+
+1. **Continuous Integration** (`.github/workflows/ci.yml`) - Build and test workflows
+2. **PR Title Lint** (`.github/workflows/pr-title-lint.yml`) - Enforce Conventional Commits on PR titles
+
 ### Continuous Integration (Reusable Workflow)
 
 This repository provides a reusable CI workflow intended to be **called by derived templates and project repos**.
@@ -226,6 +233,58 @@ Additional workflow examples for different project types are available in [`.git
 
 See the [examples README](.github/workflows/examples/README.md) for detailed usage instructions.
 
+### PR Title Lint (Reusable Workflow)
+
+This repository provides a reusable workflow for enforcing Conventional Commits format on PR titles.
+
+**Why enforce PR titles?**
+- Squash merge uses the PR title as the commit message in the main branch
+- Automated changelog and version tooling depends on properly formatted commits
+- Enforcing PR titles (not individual commits) reduces contributor friction
+
+#### Use in a derived repository
+
+Create `.github/workflows/pr-title-lint.yml` in the derived repo:
+
+```yaml
+name: PR Title Lint
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  pr-title-lint:
+    uses: EdwardRosenberg/template-base/.github/workflows/pr-title-lint.yml@main
+```
+
+**Valid PR title format:**
+
+```
+<type>(<optional scope>)<optional !>: <description>
+```
+
+**Valid types:** `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`, `build`
+
+**Examples:**
+- ✅ `feat: add user authentication endpoint`
+- ✅ `fix(ui): correct button alignment issue`
+- ✅ `chore!: update all dependencies` (breaking change)
+- ❌ `Update README` (missing type)
+
+See [docs/pr-title-guidelines.md](docs/pr-title-guidelines.md) for complete guidance.
+
+**Regex pattern used:**
+```
+^(feat|fix|chore|docs|refactor|test|perf|ci|build)(\(.+\))?(!)?: .+
+```
+
+**Recommendation:** Configure your repository to require **squash merge** or **rebase merge** in Settings → General → Pull Requests. This ensures the PR title becomes the commit message on the main branch.
+
 ## Configuration Files
 
 This repository includes several configuration files:
@@ -234,6 +293,7 @@ This repository includes several configuration files:
 - `.gitignore`: Comprehensive gitignore for multiple languages and frameworks
 - `.github/dependabot.yml`: Automated dependency updates for GitHub Actions, Maven, npm, and Docker
 - `.github/workflows/ci.yml`: Continuous Integration workflow
+- `.github/workflows/pr-title-lint.yml`: PR title validation workflow
 
 ## Contributing
 

@@ -1,0 +1,16 @@
+# Example: PR Title Lint Workflow
+# Copy this file to .github/workflows/pr-title-lint.yml in your derived repository
+
+name: PR Title Lint
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  pr-title-lint:
+    uses: EdwardRosenberg/template-base/.github/workflows/pr-title-lint.yml@main

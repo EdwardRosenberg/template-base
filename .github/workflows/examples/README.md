@@ -1,17 +1,19 @@
-# CI Workflow Examples
+# Workflow Examples
 
-This directory contains example workflow files demonstrating how to use the reusable CI workflow from derived repositories.
+This directory contains example workflow files demonstrating how to use the reusable workflows from derived repositories.
 
 ## How to Use
 
 1. Choose the example that best matches your project type
-2. Copy the example file to `.github/workflows/ci.yml` in your repository
+2. Copy the example file to `.github/workflows/` in your repository
 3. Customize the parameters as needed for your project
 4. Commit and push - the workflow will run automatically
 
 ## Available Examples
 
-### [java-backend.yml](./java-backend.yml)
+### CI Workflow Examples
+
+#### [java-backend.yml](./java-backend.yml)
 - **Use Case**: Java/Maven backend project
 - **Features**: JDK setup, Maven caching, build and test
 - **Configuration**: Java 21 with Temurin distribution
@@ -40,6 +42,14 @@ This directory contains example workflow files demonstrating how to use the reus
 - **Use Case**: Testing across multiple operating systems
 - **Features**: Tests on Ubuntu, macOS, and Windows
 - **Configuration**: Matrix build across three platforms
+
+### PR Title Lint Workflow
+
+#### [pr-title-lint.yml](./pr-title-lint.yml)
+- **Use Case**: Enforce Conventional Commits format on PR titles
+- **Features**: Validates PR titles against regex pattern, fails CI if non-conformant
+- **Configuration**: No customization needed, just copy and use
+- **Recommended**: Use with squash merge to ensure clean commit history
 
 ## Customization Tips
 
