@@ -172,11 +172,52 @@ If CI fails with a PR title validation error, refer back to this guide and updat
 
 ## Tools and Automation
 
-This repository may enforce PR title format through:
+This repository enforces PR title format through:
 
-- **GitHub Actions** - Automated checks that validate PR titles
+- **GitHub Actions** - Automated checks that validate PR titles using `.github/workflows/pr-title-lint.yml`
 - **Branch protection rules** - Preventing merge until title is valid
 - **Semantic release tools** - Automated versioning based on commit types
+
+### Using the PR Title Lint Workflow
+
+This repository provides a **reusable workflow** for PR title validation that can be used in derived repositories.
+
+#### For Derived Repositories
+
+Create `.github/workflows/pr-title-lint.yml` in your repository:
+
+```yaml
+name: PR Title Lint
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  pr-title-lint:
+    uses: EdwardRosenberg/template-base/.github/workflows/pr-title-lint.yml@main
+```
+
+This workflow will automatically validate PR titles against the Conventional Commits format and fail CI if the title doesn't conform.
+
+#### Regex Pattern
+
+The workflow validates PR titles using this regex pattern:
+
+```
+^(feat|fix|chore|docs|refactor|test|perf|ci|build)(\(.+\))?(!)?: .+
+```
+
+This ensures:
+- Title starts with a valid type (feat, fix, chore, docs, refactor, test, perf, ci, build)
+- Optional scope in parentheses
+- Optional `!` for breaking changes
+- Required colon and space
+- Required description
 
 ## Additional Resources
 

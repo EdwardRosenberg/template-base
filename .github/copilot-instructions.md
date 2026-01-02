@@ -109,6 +109,16 @@ PR titles **must** follow the Conventional Commits format:
 
 See [docs/pr-title-guidelines.md](../docs/pr-title-guidelines.md) for complete guidance.
 
+**Automated Enforcement:**
+
+This repository provides a reusable PR title lint workflow at `.github/workflows/pr-title-lint.yml` that validates PR titles against the Conventional Commits format using the regex pattern:
+
+```
+^(feat|fix|chore|docs|refactor|test|perf|ci|build)(\(.+\))?(!)?: .+
+```
+
+Derived repositories should call this workflow to enforce PR title standards. See the [PR title guidelines](../docs/pr-title-guidelines.md) for usage instructions.
+
 ### PR Descriptions Must Include
 1. **Clear summary** of what changed and why
 2. **Type of change** (bug fix, feature, refactor, docs, config, etc.)
