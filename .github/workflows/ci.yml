@@ -126,7 +126,7 @@ jobs:
       # Node.js setup (for backend)
       - name: Set up Node.js
         if: ${{ inputs.backend-tech-stack == 'node' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.backend-node-version || '20' }}
           cache: 'npm'
@@ -161,7 +161,7 @@ jobs:
       # Node.js setup
       - name: Set up Node.js
         if: ${{ inputs.frontend-tech-stack == 'node' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.frontend-node-version || '20' }}
           cache: ${{ inputs.frontend-package-manager || 'npm' }}
