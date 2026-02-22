@@ -15,6 +15,7 @@ children:
 sync_paths:
   - .github/workflows/ci.yml
   - .github/workflows/pr-title-lint.yml
+  - .github/workflows/agent-validation.yml
   - .github/copilot-instructions.md
   - .github/PULL_REQUEST_TEMPLATE.md
   - .github/ISSUE_TEMPLATE/bug.yml
@@ -22,4 +23,5 @@ sync_paths:
   - .github/ISSUE_TEMPLATE/chore.yml
   - .editorconfig
   - .gitignore
+  - CODEOWNERS
 

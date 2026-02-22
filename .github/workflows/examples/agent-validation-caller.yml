@@ -1,0 +1,38 @@
+# Example: .github/workflows/agent-validation.yml
+
+      require-lint:  true
+      require-tests: true
+      # ── Gate toggles ────────────────────────────────────────────────────────
+
+      # allowed-paths: "src/\n.github/workflows/"
+      # Remove or expand this list to match the agent's declared scope.
+      # ── Scope guard: only allow changes inside src/ and .github/workflows/ ──
+
+      lint-command:  "mvn checkstyle:check"
+      test-command:  "mvn -B test"
+      build-command: "mvn -B clean verify"
+      java-version:  "21"
+      tech-stack:    "java"
+      # ── Java / Maven example ────────────────────────────────────────────────
+    with:
+    uses: EdwardRosenberg/template-base/.github/workflows/agent-validation.yml@main
+      contains(github.event.pull_request.user.login, 'github-actions')
+      contains(github.event.pull_request.user.login, 'copilot') ||
+      contains(github.event.pull_request.user.login, '[bot]') ||
+    if: |
+    # Adjust the condition to match your bot account naming convention.
+    # Only run this workflow for bot/agent-authored PRs.
+  agent-validation:
+jobs:
+
+    types: [opened, synchronize, reopened]
+  pull_request:
+on:
+
+name: Agent Validation
+
+# It enforces all quality gates before the PR can be merged.
+# This workflow runs ONLY on PRs authored by bots or AI agents.
+#
+# and adjust the inputs to match your tech stack.
+# Copy this file into a derived repo (stack template or archetype template)

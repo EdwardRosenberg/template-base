@@ -1,0 +1,26 @@
+# CODEOWNERS
+#
+# This file defines who must review pull requests that touch specific paths.
+# GitHub automatically requests reviews from the listed owners when a PR
+# modifies matching files.
+#
+# Format:  <path-pattern>  <owner> [<owner> ...]
+# Docs:    https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# Global default — every PR requires review from the platform team.
+# This acts as a safety net for agent-authored PRs: even if an agent
+# opens a PR, a human from @EdwardRosenberg/platform-team must approve it.
+# ─────────────────────────────────────────────────────────────────────────────
+*  @EdwardRosenberg/platform-team
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CI/CD and governance files — require an additional explicit review.
+# These are high-impact files; accidental or agent-driven changes here
+# could affect every downstream repository.
+# ─────────────────────────────────────────────────────────────────────────────
+.github/workflows/   @EdwardRosenberg/platform-team
+.github/copilot-instructions.md  @EdwardRosenberg/platform-team
+CODEOWNERS           @EdwardRosenberg/platform-team
+sync-config.yml      @EdwardRosenberg/platform-team
+
