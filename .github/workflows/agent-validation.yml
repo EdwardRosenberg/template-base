@@ -1,0 +1,282 @@
+name: Agent Validation
+
+# Reusable workflow — call this from derived repos to enforce quality gates
+# specifically on PRs authored by bots or AI agents.
+#
+# Usage in a derived repo (.github/workflows/agent-validation.yml):
+#
+#   on:
+#     pull_request:
+#       types: [opened, synchronize, reopened]
+#
+#   jobs:
+#     agent-validation:
+#       if: |
+#         contains(github.event.pull_request.user.login, '[bot]') ||
+#         contains(github.event.pull_request.user.login, 'copilot')
+#       uses: EdwardRosenberg/template-base/.github/workflows/agent-validation.yml@main
+#       with:
+#         build-command: "mvn -B clean verify"
+#         test-command:  "mvn -B test"
+#         lint-command:  "mvn checkstyle:check"
+#         tech-stack:    "java"
+#         java-version:  "21"
+
+on:
+  workflow_call:
+    inputs:
+      # ── Build / test / lint ──────────────────────────────────────────────────
+      build-command:
+        description: 'Command to build the project (must exit 0 on success)'
+        type: string
+        required: true
+
+      test-command:
+        description: 'Command to run the test suite (must exit 0 on success)'
+        type: string
+        default: ''
+
+      lint-command:
+        description: 'Command to run the linter / static analysis (must exit 0 on success)'
+        type: string
+        default: ''
+
+      # ── Runtime environment ──────────────────────────────────────────────────
+      tech-stack:
+        description: 'Technology stack: java | python | node | custom'
+        type: string
+        default: 'custom'
+
+      java-version:
+        description: 'Java version (when tech-stack is java)'
+        type: string
+        default: '21'
+
+      java-distribution:
+        description: 'Java distribution (when tech-stack is java)'
+        type: string
+        default: 'temurin'
+
+      python-version:
+        description: 'Python version (when tech-stack is python)'
+        type: string
+        default: '3.11'
+
+      node-version:
+        description: 'Node.js version (when tech-stack is node)'
+        type: string
+        default: '20'
+
+      # ── Scope checks ────────────────────────────────────────────────────────
+      allowed-paths:
+        description: |
+          Newline-separated list of path prefixes the agent is allowed to touch.
+          Leave empty to skip the scope check.
+          Example: "src/\n.github/workflows/"
+        type: string
+        default: ''
+
+      # ── Gate toggles ────────────────────────────────────────────────────────
+      require-tests:
+        description: 'Fail if test-command is empty (forces agents to always run tests)'
+        type: boolean
+        default: true
+
+      require-lint:
+        description: 'Fail if lint-command is empty'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # Gate 1 — PR title must follow Conventional Commits
+  # ────────────────────────────────────────────────────────────────────────────
+  pr-title:
+    name: Gate — PR title (Conventional Commits)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          PATTERN='^(feat|fix|chore|docs|refactor|test|perf|ci|build)(\(.+\))?(!)?: .+'
+          echo "Validating: $PR_TITLE"
+          if echo "$PR_TITLE" | grep -Pq "$PATTERN"; then
+            echo "✅ PR title is valid"
+          else
+            echo "❌ PR title does not follow Conventional Commits format"
+            echo "   Expected: <type>(<scope>): <description>"
+            echo "   Valid types: feat fix chore docs refactor test perf ci build"
+            exit 1
+          fi
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Gate 2 — Scope check: agent must not touch files outside allowed-paths
+  # ────────────────────────────────────────────────────────────────────────────
+  scope-check:
+    name: Gate — Scope (files in declared scope)
+    runs-on: ubuntu-latest
+    if: ${{ inputs.allowed-paths != '' }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files against allowed-paths
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ALLOWED:  ${{ inputs.allowed-paths }}
+        run: |
+          set -euo pipefail
+
+          # Build list of changed files in this PR
+          mapfile -t CHANGED < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+
+          echo "Changed files:"
+          printf '  %s\n' "${CHANGED[@]}"
+          echo ""
+
+          # Build allowed prefix list from the newline-separated input
+          mapfile -t PREFIXES < <(echo "$ALLOWED" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+
+          echo "Allowed path prefixes:"
+          printf '  %s\n' "${PREFIXES[@]}"
+          echo ""
+
+          VIOLATIONS=()
+          for file in "${CHANGED[@]}"; do
+            allowed=false
+            for prefix in "${PREFIXES[@]}"; do
+              if [[ "$file" == ${prefix}* ]]; then
+                allowed=true
+                break
+              fi
+            done
+            if [ "$allowed" = false ]; then
+              VIOLATIONS+=("$file")
+            fi
+          done
+
+          if [ ${#VIOLATIONS[@]} -gt 0 ]; then
+            echo "❌ Agent touched files outside declared scope:"
+            printf '  %s\n' "${VIOLATIONS[@]}"
+            echo ""
+            echo "If these changes are intentional, update the allowed-paths input"
+            echo "in the calling workflow, or move the changes to a separate PR."
+            exit 1
+          fi
+
+          echo "✅ All changed files are within declared scope"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Gate 3 — Build, test, lint
+  # ────────────────────────────────────────────────────────────────────────────
+  build-test-lint:
+    name: Gate — Build / Test / Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+
+      # ── Runtime setup ──────────────────────────────────────────────────────
+      - name: Set up JDK
+        if: ${{ inputs.tech-stack == 'java' }}
+        uses: actions/setup-java@v4
+        with:
+          java-version:    ${{ inputs.java-version }}
+          distribution:    ${{ inputs.java-distribution }}
+          cache: maven
+
+      - name: Set up Python
+        if: ${{ inputs.tech-stack == 'python' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+
+      - name: Set up Node.js
+        if: ${{ inputs.tech-stack == 'node' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      # ── Enforce test-command is present ───────────────────────────────────
+      - name: Enforce test-command is provided
+        if: ${{ inputs.require-tests && inputs.test-command == '' }}
+        run: |
+          echo "❌ require-tests is true but no test-command was provided."
+          echo "   Agents must always run the test suite. Set test-command in the calling workflow."
+          exit 1
+
+      # ── Enforce lint-command is present ───────────────────────────────────
+      - name: Enforce lint-command is provided
+        if: ${{ inputs.require-lint && inputs.lint-command == '' }}
+        run: |
+          echo "❌ require-lint is true but no lint-command was provided."
+          echo "   Set lint-command in the calling workflow."
+          exit 1
+
+      # ── Build ──────────────────────────────────────────────────────────────
+      - name: Build
+        run: ${{ inputs.build-command }}
+
+      # ── Test ───────────────────────────────────────────────────────────────
+      - name: Run tests
+        if: ${{ inputs.test-command != '' }}
+        run: ${{ inputs.test-command }}
+
+      # ── Lint ───────────────────────────────────────────────────────────────
+      - name: Run linter
+        if: ${{ inputs.lint-command != '' }}
+        run: ${{ inputs.lint-command }}
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Gate 4 — Summary: all gates must pass before this job succeeds.
+  #          Use this job name in branch protection "required status checks".
+  # ────────────────────────────────────────────────────────────────────────────
+  agent-validation-success:
+    name: Agent Validation — All Gates Passed
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [pr-title, scope-check, build-test-lint]
+    steps:
+      - name: Evaluate gate results
+        run: |
+          pr_title="${{ needs.pr-title.result }}"
+          scope="${{ needs.scope-check.result }}"
+          build="${{ needs.build-test-lint.result }}"
+
+          failed=false
+
+          if [ "$pr_title" = "failure" ] || [ "$pr_title" = "cancelled" ]; then
+            echo "❌ PR title gate failed"
+            failed=true
+          fi
+
+          # scope-check is skipped when allowed-paths is empty — that is acceptable
+          if [ "$scope" = "failure" ] || [ "$scope" = "cancelled" ]; then
+            echo "❌ Scope check gate failed"
+            failed=true
+          fi
+
+          if [ "$build" = "failure" ] || [ "$build" = "cancelled" ]; then
+            echo "❌ Build/test/lint gate failed"
+            failed=true
+          fi
+
+          if [ "$failed" = "true" ]; then
+            echo ""
+            echo "One or more agent validation gates failed."
+            echo "Fix the issues above before this PR can be merged."
+            exit 1
+          fi
+
+          echo "✅ All agent validation gates passed"
+
