@@ -1,0 +1,25 @@
+# sync-config.yml
+# This is the Tier 0 root of the template hierarchy.
+# It has no parent — it is the source of truth for all downstream templates.
+#
+# Schema:
+#   tier:     This template's tier in the hierarchy (0=base, 1=stack, 2=archetype)
+#   children: Direct Tier 1 stack templates that inherit from this template.
+#             The platform sync workflow uses this list to propagate changes.
+
+tier: 0
+
+children:
+  - EdwardRosenberg/template-backend-java
+
+sync_paths:
+  - .github/workflows/ci.yml
+  - .github/workflows/pr-title-lint.yml
+  - .github/copilot-instructions.md
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/ISSUE_TEMPLATE/bug.yml
+  - .github/ISSUE_TEMPLATE/feature.yml
+  - .github/ISSUE_TEMPLATE/chore.yml
+  - .editorconfig
+  - .gitignore
+
