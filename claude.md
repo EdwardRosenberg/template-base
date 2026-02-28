@@ -45,35 +45,15 @@ Children of this repo:
 
 ## Versioning
 
-This template follows [Semantic Versioning](https://semver.org/) via git tags on the `main` branch.
+This repo has no version file. It uses git tags (`vX.Y.Z`) on `main` for versioning, referenced by downstream callers (e.g., `@v1.0.0`).
 
-**Current version is determined by the latest `vX.Y.Z` git tag.**
+When making changes, determine the appropriate version bump based on your change type and include a note in the PR description about which semver increment applies:
 
-### When to bump the version
+- **PATCH** — bug fixes, doc updates, non-breaking tweaks (`fix:`, `docs:`, `chore:`, `ci:`, `refactor:`, `test:`)
+- **MINOR** — new features, new workflow inputs with defaults (`feat:`)
+- **MAJOR** — breaking changes to workflow inputs or behavior (`feat!:`, `fix!:`, `chore!:`)
 
-After merging a PR, determine the version increment from the PR title (Conventional Commits format):
-
-| PR title type | Version bump | Example |
-|---|---|---|
-| `fix:` | **PATCH** (`v1.0.0` → `v1.0.1`) | `fix: correct CI caching for pip` |
-| `feat:` | **MINOR** (`v1.0.0` → `v1.1.0`) | `feat: add agent-validation reusable workflow` |
-| `feat!:`, `fix!:`, `chore!:` (breaking) | **MAJOR** (`v1.0.0` → `v2.0.0`) | `feat!: rename ci.yml input parameters` |
-| `docs:`, `chore:`, `ci:`, `refactor:`, `test:` | **PATCH** (`v1.0.0` → `v1.0.1`) | `docs: update workflow examples` |
-
-### How to bump
-
-1. Check the latest tag: `git describe --tags --abbrev=0`
-2. Calculate the new version based on the rules above.
-3. Tag the merge commit: `git tag vX.Y.Z && git push origin vX.Y.Z`
-
-### Breaking changes require extra care
-
-A breaking change in `template-base` affects **every downstream repo** calling its reusable workflows. Before bumping major:
-- Document the migration path in the PR description
-- Consider adding a deprecation period where old inputs still work
-- Update `README.md` workflow examples to reflect the new usage
-
-Downstream repos reference this template as `@main` or `@vX.Y.Z`. A major version bump means callers pinned to `@v1` won't automatically pick up `@v2` changes — which is the desired behavior for breaking changes.
+Breaking changes in this repo affect **every downstream template and project**. If your change breaks existing callers, document the migration path in the PR description and consider a deprecation period where old inputs still work alongside new ones.
 
 ## PR Conventions
 
