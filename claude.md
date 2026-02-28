@@ -55,6 +55,29 @@ When making changes, determine the appropriate version bump based on your change
 
 Breaking changes in this repo affect **every downstream template and project**. If your change breaks existing callers, document the migration path in the PR description and consider a deprecation period where old inputs still work alongside new ones.
 
+## Branch Management
+
+Every change must go through a pull request — never push directly to `main`.
+
+1. **Create a branch** from `main` for each feature or fix:
+   ```bash
+   git checkout main && git pull
+   git checkout -b <type>/<short-description>   # e.g. feat/add-workflow-input
+   ```
+2. **Commit and push** your changes to the new branch:
+   ```bash
+   git add -A && git commit -m "<type>(<scope>): <description>"
+   git push -u origin HEAD
+   ```
+3. **Open a pull request** against `main` and wait for CI/CD to pass.
+4. **Merge the PR** once CI is green and any required reviews are approved.
+5. **Pull main** locally before starting the next change:
+   ```bash
+   git checkout main && git pull
+   ```
+
+Repeat for each subsequent feature or fix. Keep branches short-lived and focused on a single concern.
+
 ## PR Conventions
 
 - Titles must follow Conventional Commits: `<type>(<scope>): <description>`
