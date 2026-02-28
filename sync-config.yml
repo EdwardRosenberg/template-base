@@ -12,6 +12,7 @@ tier: 0
 children:
   - EdwardRosenberg/template-backend-java
   - EdwardRosenberg/template-backend-python
+  - EdwardRosenberg/template-desktop-electron
 
 sync_paths:
   - .github/workflows/ci.yml
