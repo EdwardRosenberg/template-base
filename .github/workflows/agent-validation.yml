@@ -195,7 +195,7 @@ jobs:
 
       - name: Set up Python
         if: ${{ inputs.tech-stack == 'python' }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.python-version }}
           cache: pip
